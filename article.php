@@ -1,6 +1,9 @@
 <?php
 $pdo = new PDO('mysql:host=localhost;dbname=phachepDB;charset=utf8', 'root', '');
-$date=date('Y-m-d H:i:s');
+
+require_once 'auth.php';
+
+session_start();
 
 // Ajouter un article
 if (isset($_POST['add'])) {
@@ -11,7 +14,7 @@ if (isset($_POST['add'])) {
         $_POST['description'],
         $_POST['price'],
         date('Y-m-d H:i:s'),
-        $_POST['author_id'],
+        $_SESSION['id'],
         $_POST['image_link']
     ]);
     header("Location: " . $_SERVER['PHP_SELF']);
@@ -36,13 +39,11 @@ if (isset($_GET['edit'])) {
 
 // Enregistrer la modification
 if (isset($_POST['update'])) {
-    $stmt = $pdo->prepare("UPDATE Article SET name=?, description=?, price=?, publication_date=?, author_id=?, image_link=? WHERE id=?");
+    $stmt = $pdo->prepare("UPDATE Article SET name=?, description=?, price=?, image_link=? WHERE id=?");
     $stmt->execute([
         $_POST['name'],
         $_POST['description'],
         $_POST['price'],
-        date('Y-m-d H:i:s'),
-        $_POST['author_id'],
         $_POST['image_link'],
         $_POST['id']
     ]);
