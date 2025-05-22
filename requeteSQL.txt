@@ -1,5 +1,9 @@
+--Database
+CREATE DATABASE phachepDB;
+USE phachepDB;
+
 -- Table User
-CREATE TABLE User (
+CREATE TABLE 'User' (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(100) NOT NULL,
     password VARCHAR(255) NOT NULL, -- Bcrypt nécessite jusqu’à 60+ caractères
