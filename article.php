@@ -3,8 +3,6 @@ $pdo = new PDO('mysql:host=localhost;dbname=phachepDB;charset=utf8', 'root', '')
 
 require_once 'auth.php';
 
-session_start();
-
 // Ajouter un article
 if (isset($_POST['add'])) {
     $stmt = $pdo->prepare("INSERT INTO Article (name, description, price, publication_date, author_id, image_link)
