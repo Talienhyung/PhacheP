@@ -20,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $_SESSION["id"] = $user["id"];
 
         // Redirection royale
-        header("Location: page.php");
+        header("Location: page.php?id=" . $user["id"]);
         exit();
     } else {
         $message = "Accès refusé, noble âme : identifiants invalides.";
