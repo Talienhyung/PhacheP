@@ -15,7 +15,7 @@ if (isset($_POST['add'])) {
         $_SESSION['id'],
         $_POST['image_link']
     ]);
-    $stmt = $db->prepare("INSERT INTO Stock (article_id, stock) VALUES (?, ?)");
+    $stmt = $db->prepare("INSERT INTO Stock (article_id, quantity) VALUES (?, ?)");
     $stmt->execute([
         $db->lastInsertId(),
         $_POST['stock']
@@ -26,11 +26,11 @@ if (isset($_POST['add'])) {
 
 // Supprimer un article
 if (isset($_GET['delete'])) {
-    $stmt = $pdo->prepare("DELETE FROM Article WHERE id = ?");
+    $stmt = $db->prepare("DELETE FROM Article WHERE id = ?");
     $stmt->execute([$_GET['delete']]);
-    $stmt = $pdo->prepare("DELETE FROM Stock WHERE article_id = ?");
+    $stmt = $db->prepare("DELETE FROM Stock WHERE article_id = ?");
     $stmt->execute([$_GET['delete']]);
-    $stmt = $pdo->prepare("DELETE FROM Cart WHERE article_id = ?");
+    $stmt = $db->prepare("DELETE FROM Cart WHERE article_id = ?");
     $stmt->execute([$_GET['delete']]);
     header("Location: " . $_SERVER['PHP_SELF']);
     exit;
@@ -39,14 +39,23 @@ if (isset($_GET['delete'])) {
 // Modifier un article (affichage dans le formulaire)
 $editArticle = null;
 if (isset($_GET['edit'])) {
-    $stmt = $pdo->prepare("SELECT * FROM Article WHERE id = ?");
+    $stmt = $db->prepare("SELECT * FROM Article WHERE id = ?");
     $stmt->execute([$_GET['edit']]);
     $editArticle = $stmt->fetch();
+
+    $stmt = $db->prepare("SELECT * FROM Stock WHERE article_id = ?");
+    $stmt->execute([$_GET['edit']]);
+    $stock = $stmt->fetch();
+    if ($stock) {
+        $editArticle['stock'] = $stock['quantity'];
+    } else {
+        $editArticle['stock'] = 1; // Valeur par défaut si pas de stock
+    }
 }
 
 // Enregistrer la modification
 if (isset($_POST['update'])) {
-    $stmt = $pdo->prepare("UPDATE Article SET name=?, description=?, price=?, image_link=? WHERE id=?");
+    $stmt = $db->prepare("UPDATE Article SET name=?, description=?, price=?, image_link=? WHERE id=?");
     $stmt->execute([
         $_POST['name'],
         $_POST['description'],
@@ -56,7 +65,7 @@ if (isset($_POST['update'])) {
     ]);
     header("Location: " . $_SERVER['PHP_SELF']);
 
-    $stmt = $pdo->prepare("UPDATE Stock SET stock=? WHERE article_id=?");
+    $stmt = $db->prepare("UPDATE Stock SET quantity=? WHERE article_id=?");
     $stmt->execute([
         $_POST['stock'],
         $_POST['id']
@@ -107,8 +116,13 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <td><?= $article['author_id'] ?></td>
             <td><?= $article['quantity'] ?></td>
             <td>
-                <a href="?edit=<?= $article['id'] ?>">✏️ Modifier</a> |
-                <a href="?delete=<?= $article['id'] ?>" onclick="return confirm('Supprimer cet article ?')">🗑️ Supprimer</a>
+                <?php
+                if ($article['author_id'] == $_SESSION['id']) {
+                    echo '<a href="?edit=' . $article['id'] . '">✏️ Modifier</a> | <a href="?delete=' . $article['id'] . '" onclick="return confirm(\'Supprimer cet article ?\')">🗑️ Supprimer</a>';
+                } else {
+                    echo '<a href="?addToCart=' . $article['id'] . '">🛒 Ajouter au panier</a>';
+                }
+                ?>
             </td>
         </tr>
         <?php endforeach; ?>
