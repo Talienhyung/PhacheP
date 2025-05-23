@@ -1,6 +1,7 @@
 <?php
 $db = new PDO('mysql:host=localhost;dbname=phachepDB;charset=utf8', 'root', '');
 
+include "header.php";
 require_once 'auth.php';
 
 // Ajouter un article
