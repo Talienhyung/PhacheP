@@ -9,7 +9,7 @@ try {
 
 $userId = $_SESSION["id"];
 $productId = $_GET["id"];
-$query = $db->prepare("SELECT name, price, image_link, S.quantity FROM Article JOIN Stock as S ON Article.id = S.article_id WHERE Article.id = ?");
+$query = $db->prepare("SELECT name, price, description, image_link, S.quantity FROM Article JOIN Stock as S ON Article.id = S.article_id WHERE Article.id = ?");
 $query->execute([$productId]);
 $product = $query->fetch(PDO::FETCH_ASSOC);
 if (!$product) {
@@ -89,6 +89,7 @@ if (isset($_POST['add_to_cart'])) {
             <p>Prix : <?= number_format($product['price'], 2) ?> €</p>
             <p>Quantité disponible : <?= $product['quantity'] ?></p>
             <p>Déjà dans le panier : <?= $alreadyInCart ?></p>
+            <p>description : <?= $product['description'] ?></p>
             <form method="POST">
                 <input type="hidden" name="product_id" value="<?= $productId ?>">
                 <input type="range" name="quantity" min="1" max="<?= $product['quantity'] - $alreadyInCart ?>" value="1">

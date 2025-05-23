@@ -3,6 +3,21 @@ $db = new PDO('mysql:host=localhost;dbname=phachepDB;charset=utf8', 'root', '');
 
 require_once 'auth.php';
 
+$isEdit = isset($_GET['edit']);
+if ($isEdit) {
+    $stmt = $db->prepare("SELECT * FROM Article WHERE id = ?");
+    $stmt->execute([$_GET['edit']]);
+    $article = $stmt->fetch();
+    if (!$article) {
+        echo "<p style='color:red;'>Article introuvable...</p>";
+        exit();
+    }
+    if ($article['author_id'] != $_SESSION['id']) {
+        echo "<p style='color:red;'>Vous n'avez pas le droit de modifier cet article ! C'est pas bien :(</p>";
+        exit();
+    }
+}
+
 // Ajouter un article
 if (isset($_POST['add'])) {
     $stmt = $db->prepare("INSERT INTO Article (name, description, price, publication_date, author_id, image_link)
@@ -20,19 +35,7 @@ if (isset($_POST['add'])) {
         $db->lastInsertId(),
         $_POST['stock']
     ]);
-    header("Location: " . $_SERVER['PHP_SELF']);
-    exit;
-}
-
-// Supprimer un article
-if (isset($_GET['delete'])) {
-    $stmt = $db->prepare("DELETE FROM Article WHERE id = ?");
-    $stmt->execute([$_GET['delete']]);
-    $stmt = $db->prepare("DELETE FROM Stock WHERE article_id = ?");
-    $stmt->execute([$_GET['delete']]);
-    $stmt = $db->prepare("DELETE FROM Cart WHERE article_id = ?");
-    $stmt->execute([$_GET['delete']]);
-    header("Location: " . $_SERVER['PHP_SELF']);
+    header("Location:home.php");
     exit;
 }
 
@@ -70,14 +73,11 @@ if (isset($_POST['update'])) {
         $_POST['stock'],
         $_POST['id']
     ]);
+    header("Location:home.php");
     exit;
 }
 
-// Liste des articles
-// $articles = $pdo->query("SELECT * FROM Article ORDER BY id DESC")->fetchAll();
-// Liste des articles avec stock
-$stmt = $db->query("SELECT A.*, S.quantity FROM Article A JOIN Stock S ON A.id = S.article_id ORDER BY A.id DESC");
-$articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 
 <!DOCTYPE html>
@@ -101,31 +101,5 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?= $editArticle ? 'Mettre à jour' : 'Ajouter' ?>
         </button>
     </form>
-
-    <h2>Liste des Articles</h2>
-    <table border="1" cellpadding="8">
-        <tr>
-            <th>ID</th><th>Nom</th><th>Prix</th><th>Date</th><th>Auteur</th><th>Stock</th><th>Actions</th>
-        </tr>
-        <?php foreach ($articles as $article): ?>
-        <tr>
-            <td><?= $article['id'] ?></td>
-            <td><?= htmlspecialchars($article['name']) ?></td>
-            <td><?= number_format($article['price'], 2) ?> €</td>
-            <td><?= $article['publication_date'] ?></td>
-            <td><?= $article['author_id'] ?></td>
-            <td><?= $article['quantity'] ?></td>
-            <td>
-                <?php
-                if ($article['author_id'] == $_SESSION['id']) {
-                    echo '<a href="?edit=' . $article['id'] . '">✏️ Modifier</a> | <a href="?delete=' . $article['id'] . '" onclick="return confirm(\'Supprimer cet article ?\')">🗑️ Supprimer</a>';
-                } else {
-                    echo '<a href="addcart.php?id=' . $article['id'] . '">🛒 Ajouter au panier</a>';
-                }
-                ?>
-            </td>
-        </tr>
-        <?php endforeach; ?>
-    </table>
 </body>
 </html>
