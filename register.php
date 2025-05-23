@@ -1,24 +1,23 @@
+<?php
+include 'header.php';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Register - Omivahi</title>
     <style>
-        body {
-            font-family: Georgia, serif;
-            background: #f5f5f5;
-            padding: 40px;
-        }
         form {
-            background: white;
-            padding: 20px;
-            border: 2px solid #ccc;
-            width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid #ccc;
+            width: 500px;
             margin: auto;
-            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
         }
         input, select {
-            width: 100%;
+            width: 80%;
             margin-bottom: 12px;
             padding: 8px;
             border: 1px solid #999;
@@ -81,12 +80,6 @@
         }
     }
     ?>
-
-    <p style="text-align:center; margin-top: 30px;">
-    <a href="/phachep/login.php" style="display:inline-block; background:#333; color:white; padding:10px 20px; border-radius:5px; text-decoration:none;">
-        retour
-    </a>
-    </p>
 
 </body>
 </html>

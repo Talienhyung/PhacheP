@@ -1,4 +1,5 @@
 <?php
+include 'header.php';
 require_once "auth.php";
 
 try {

@@ -1,63 +1,86 @@
+<?php
+include 'phachep/header.php';
+session_start();
+try {
+    $db = new PDO('mysql:host=localhost;dbname=phachepDB', 'root', '');
+} catch (PDOException $e) {
+    die("Connexion échouée, ô majesté : " . $e->getMessage());
+}
+
+// Supprimer un article
+if (isset($_GET['delete'])) {
+    $stmt = $db->prepare("DELETE FROM Article WHERE id = ?");
+    $stmt->execute([$_GET['delete']]);
+    $stmt = $db->prepare("DELETE FROM Stock WHERE article_id = ?");
+    $stmt->execute([$_GET['delete']]);
+    $stmt = $db->prepare("DELETE FROM Cart WHERE article_id = ?");
+    $stmt->execute([$_GET['delete']]);
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit;
+}
+
+// Liste des articles
+$stmt = $db->query("SELECT A.*, S.quantity FROM Article A JOIN Stock S ON A.id = S.article_id ORDER BY A.id DESC");
+$articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>PHP HTML Example</title>
+    <title>CRUD Articles</title>
     <style>
         table {
             border-collapse: collapse;
-            width: 80%;
-            margin: 20px auto;
+            width: 90%;
+            margin: 1em auto;
+            border: 1px solid #ccc;
         }
         th, td {
-            border: 1px solid #333;
-            padding: 8px;
-            text-align: left;
+            border: 1px solid #ccc;
+            padding: 8px 10px;
+            text-align: center;
         }
-        th {
-            background-color: #eee;
+        img.thumb {
+            max-width: 60px;
+            max-height: 60px;
+            object-fit: contain;
         }
     </style>
 </head>
 <body>
-    <h1 style="text-align:center;">Welcome to My PHP Page</h1>
 
-    <?php
-    try {
-        $mySQLClient = new PDO('mysql:host=localhost;dbname=phachepDB', 'root', '');
-        $mySQLClient->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        // Requête pour récupérer tous les utilisateurs
-        $query = $mySQLClient->query('SELECT id, username, email, balance, role FROM `User`');
-        $users = $query->fetchAll(PDO::FETCH_ASSOC);
-
-        if (count($users) > 0) {
-            echo "<table>";
-            echo "<tr><th>ID</th><th>Username</th><th>Email</th><th>Balance</th></tr>";
-
-            foreach ($users as $user) {
-                echo "<tr>";
-                echo "<td>" . htmlspecialchars($user['id']) . "</td>";
-                echo "<td>" . htmlspecialchars($user['username']) . "</td>";
-                echo "<td>" . htmlspecialchars($user['email']) . "</td>";
-                echo "<td>" . htmlspecialchars($user['balance']) . " €</td>";
-                echo "</tr>";
-            }
-
-            echo "</table>";
-        } else {
-            echo "<p style='text-align:center;'>Aucun utilisateur trouvé dans la base de données.</p>";
-        }
-    } catch (PDOException $e) {
-        die("Connection failed: " . $e->getMessage());
-    }
-    ?>
-
-    <p style="text-align:center; margin-top: 30px;">
-    <a href="/phachep/register.php" style="display:inline-block; background:#333; color:white; padding:10px 20px; border-radius:5px; text-decoration:none;">
-        ➕ Créer un compte
-    </a>
-</p>
+    <h2 style="text-align:center;">Liste des Articles</h2>
+    <table>
+        <tr>
+            <th>Image</th><th>Nom</th><th>Prix</th><th>Date</th><th>Auteur</th><th>Stock</th><th>Actions</th>
+        </tr>
+        <?php foreach ($articles as $article): ?>
+        <tr>
+            <td>
+                <?php if (!empty($article['image_link'])): ?>
+                    <img src="<?= htmlspecialchars($article['image_link']) ?>" alt="<?= htmlspecialchars($article['name']) ?>" class="thumb">
+                <?php else: ?>
+                    <em>Pas d’image</em>
+                <?php endif; ?>
+            </td>
+            <td><?= htmlspecialchars($article['name']) ?></td>
+            <td><?= number_format($article['price'], 2) ?> €</td>
+            <td><?= $article['publication_date'] ?></td>
+            <td><?= $article['author_id'] ?></td>
+            <td><?= $article['quantity'] ?></td>
+            <td>
+                <?php
+                if ($article['author_id'] == $_SESSION['id']) {
+                    echo '<a href="article.php?edit=' . $article['id'] . '">✏️ Modifier</a> | <a href="?delete=' . $article['id'] . '" onclick="return confirm(\'Supprimer cet article ?\')">🗑️ Supprimer</a>';
+                } else {
+                    echo '<a href="addcart.php?id=' . $article['id'] . '">🛒 Ajouter au panier</a>';
+                }
+                ?>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+    </table>
 
 </body>
 </html>
