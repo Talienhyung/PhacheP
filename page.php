@@ -77,12 +77,7 @@ if (!$user) {
 <?php if ($isYourself): ?>
 
     <hr>
-    <h2>Articles achetés</h2>
-    <ul>
-    <?php foreach ($purchased as $a): ?>
-        <li><?= htmlspecialchars($a['name']) ?> – <?= number_format($a['price'], 2) ?> €</li>
-    <?php endforeach; ?>
-    </ul>
+    <h2><a href="cart.php">Mon Panier</a></h2>
 
     <hr>
     <h2>Mes factures</h2>
@@ -94,15 +89,49 @@ if (!$user) {
 
     <hr>
     <h2>Modifier mes informations</h2>
-    <form method="post" action="modifier_infos.php">
-        <label>Nouvel email : <input type="email" name="email" required></label><br>
-        <label>Nouveau mot de passe : <input type="password" name="password" required></label><br>
+    <?php
+    // Traitement du formulaire de modification
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isYourself) {
+        $newUsername = trim($_POST['username']);
+        $newEmail = trim($_POST['email']);
+
+        if ($newUsername && $newEmail) {
+            $stmt = $db->prepare("UPDATE User SET username = ?, email = ? WHERE id = ?");
+            $stmt->execute([$newUsername, $newEmail, $userId]);
+            // Met à jour les infos affichées
+            $user['username'] = $newUsername;
+            $user['email'] = $newEmail;
+            echo "<p style='color:green;'>Profil mis à jour !</p>";
+        } else {
+            echo "<p style='color:red;'>Veuillez remplir tous les champs.</p>";
+        }
+    }
+    ?>
+    <form method="POST">
+        <label>Nom d'utilisateur : <input type="text" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" required></label><br>
+        <label>Nouvel email : <input type="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required></label><br>
         <button type="submit">Mettre à jour</button>
     </form>
 
     <hr>
     <h2>Ajouter de l'argent</h2>
-    <form method="post" action="ajouter_solde.php">
+    <?php
+    // Traitement de l'ajout d'argent
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['montant']) && $isYourself) {
+        $montant = floatval($_POST['montant']);
+        if ($montant > 0) {
+            $stmt = $db->prepare("UPDATE User SET balance = balance + ? WHERE id = ?");
+            $stmt->execute([$montant, $userId]);
+            // Met à jour le solde affiché
+            $user['balance'] += $montant;
+            echo "<p style='color:green;'>$montant € ajoutés à votre solde !</p>";
+            header("Location: " . $_SERVER['PHP_SELF'] . "?id=" . $userId);
+        } else {
+            echo "<p style='color:red;'>Veuillez entrer un montant valide.</p>";
+        }
+    }
+    ?>
+    <form method="post">
         <label>Montant (€) : <input type="number" step="0.01" name="montant" required></label><br>
         <button type="submit">Ajouter</button>
     </form>
