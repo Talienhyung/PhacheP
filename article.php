@@ -120,7 +120,7 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 if ($article['author_id'] == $_SESSION['id']) {
                     echo '<a href="?edit=' . $article['id'] . '">✏️ Modifier</a> | <a href="?delete=' . $article['id'] . '" onclick="return confirm(\'Supprimer cet article ?\')">🗑️ Supprimer</a>';
                 } else {
-                    echo '<a href="?addToCart=' . $article['id'] . '">🛒 Ajouter au panier</a>';
+                    echo '<a href="addcart.php?id=' . $article['id'] . '">🛒 Ajouter au panier</a>';
                 }
                 ?>
             </td>
