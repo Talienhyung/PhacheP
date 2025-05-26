@@ -49,6 +49,7 @@ $stmt = $db->prepare("
 ");
 $stmt->execute([$userId]);
 $cartItems = $stmt->fetchAll();
+
 ?>
 
 <h1>Votre panier</h1>
@@ -78,3 +79,62 @@ $cartItems = $stmt->fetchAll();
         echo number_format($total, 2);
     ?> €</strong>
 </p>
+
+<form method="POST" action="">
+        <input type="text" name="billing_address" placeholder="Adresse" required>
+        <input type="text" name="billing_city" placeholder="Ville" required>
+        <input type="text" name="billing_zipcode" placeholder="Code postale" required>
+        <button type="submit" name="getit">Commander</button>
+</form>
+
+<?php
+
+if (isset($_POST['getit'])) {
+        try {
+            $db = new PDO('mysql:host=localhost;dbname=phachepDB', 'root', '');
+            $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            // Sécurisation des champs
+            $billing_address = htmlspecialchars($_POST['billing_address']);
+            $billing_city = htmlspecialchars($_POST['billing_city']);
+            $billing_zipcode = htmlspecialchars($_POST['billing_zipcode']);
+
+            if ($user['balance'] < $total) {
+                echo "<p class='message' style='color:red;'>Solde insuffisant pour passer la commande.</p>";
+            } else {
+                // Insertion de la facture
+                $insertInvoice = $db->prepare("INSERT INTO Invoice (user_id, amount, billing_address, billing_city, billing_zipcode) VALUES (?, ?, ?, ?, ?)");
+                $insertInvoice->execute([$userId, $total, $billing_address, $billing_city, $billing_zipcode]);
+
+                $deleteOldStock = $db->prepare(
+                    "UPDATE Stock S
+                        JOIN (
+                            SELECT article_id, COUNT(*) AS qty
+                            FROM Cart
+                            WHERE user_id = ?
+                            GROUP BY article_id
+                        ) AS CartQty ON S.article_id = CartQty.article_id
+                        SET S.quantity = S.quantity - CartQty.qty;"
+                        );
+                $deleteOldStock->execute([$userId]);
+
+                // Mise à jour du solde de l'utilisateur
+                $updateBalance = $db->prepare("UPDATE User SET balance = balance - ? WHERE id = ?");
+                $updateBalance->execute([$total, $userId]);
+
+                // Suppression des articles du panier
+                $deleteCart = $db->prepare("DELETE FROM Cart WHERE user_id = ?");
+                $deleteCart->execute([$userId]);
+
+                
+
+                echo "<p class='message' style='color:green;'>Commande passée avec succès !</p>";
+
+            }
+        }
+        catch (PDOException $e) {
+            echo "<p class='message' style='color:red;'>Erreur de connexion à la base de données : " . $e->getMessage() . "</p>";
+        }
+}
+
+?>

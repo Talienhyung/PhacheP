@@ -40,7 +40,7 @@
     <header>
         <nav>
             <div class="nav-left">
-                <a href="phachep/index.php"><strong>Phachep</strong></a>
+                <a href="index.php"><strong>Phachep</strong></a>
                 <?php if (isset($_SESSION["id"])): ?>
                     <a href="/phachep/page.php?id=<?= $_SESSION['id'] ?>">Mon compte</a>
                     <a href="/phachep/cart.php">Panier</a>

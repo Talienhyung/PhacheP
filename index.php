@@ -1,6 +1,6 @@
 <?php
-include 'phachep/header.php';
-session_start();
+include 'header.php';
+
 try {
     $db = new PDO('mysql:host=localhost;dbname=phachepDB', 'root', '');
 } catch (PDOException $e) {
@@ -20,7 +20,7 @@ if (isset($_GET['delete'])) {
 }
 
 // Liste des articles
-$stmt = $db->query("SELECT A.*, S.quantity FROM Article A JOIN Stock S ON A.id = S.article_id ORDER BY A.id DESC");
+$stmt = $db->query("SELECT A.*, S.quantity, User.username FROM Article A JOIN Stock S ON A.id = S.article_id Join User ON A.author_id = User.id ORDER BY A.id DESC");
 $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -67,14 +67,14 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <td><?= htmlspecialchars($article['name']) ?></td>
             <td><?= number_format($article['price'], 2) ?> €</td>
             <td><?= $article['publication_date'] ?></td>
-            <td><?= $article['author_id'] ?></td>
+            <td><?= $article['username'] ?></td>
             <td><?= $article['quantity'] ?></td>
             <td>
                 <?php
                 if ($article['author_id'] == $_SESSION['id']) {
                     echo '<a href="article.php?edit=' . $article['id'] . '">✏️ Modifier</a> | <a href="?delete=' . $article['id'] . '" onclick="return confirm(\'Supprimer cet article ?\')">🗑️ Supprimer</a>';
                 } else {
-                    echo '<a href="addcart.php?id=' . $article['id'] . '">🛒 Ajouter au panier</a>';
+                    echo '<a href="addcart.php?id=' . $article['id'] . '">Detail / Ajouter au panier</a>';
                 }
                 ?>
             </td>
