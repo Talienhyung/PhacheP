@@ -4,6 +4,10 @@ $db = new PDO('mysql:host=localhost;dbname=phachepDB;charset=utf8', 'root', '');
 include 'header.php';
 require_once 'auth.php';
 
+$query = $db->prepare("SELECT * FROM User WHERE id = ?");
+$query->execute([$_SESSION['id']]);
+$user = $query->fetch(PDO::FETCH_ASSOC);
+
 $isEdit = isset($_GET['edit']);
 if ($isEdit) {
     $stmt = $db->prepare("SELECT * FROM Article WHERE id = ?");
@@ -13,7 +17,7 @@ if ($isEdit) {
         echo "<p style='color:red;'>Article introuvable...</p>";
         exit();
     }
-    if ($article['author_id'] != $_SESSION['id']) {
+    if ($article['author_id'] != $_SESSION['id'] && $user['role'] !== 'admin') {
         echo "<p style='color:red;'>Vous n'avez pas le droit de modifier cet article !</p>";
         exit();
     }

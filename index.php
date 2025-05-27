@@ -1,6 +1,5 @@
 <?php
 include 'header.php';
-
 try {
     $db = new PDO('mysql:host=localhost;dbname=phachepDB', 'root', '');
 } catch (PDOException $e) {
