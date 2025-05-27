@@ -76,6 +76,7 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 } else {
                     echo '<a href="addcart.php?id=' . $article['id'] . '">Detail / Ajouter au panier</a>';
                 }
+                
                 ?>
             </td>
         </tr>

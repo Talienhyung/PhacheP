@@ -50,6 +50,32 @@ $stmt = $db->prepare("
 $stmt->execute([$userId]);
 $cartItems = $stmt->fetchAll();
 
+$stock = $db->prepare("
+    SELECT * FROM Stock");
+$stock->execute();
+$stockItems = $stock->fetchAll();
+
+foreach ($cartItems as &$item) {
+    foreach ($stockItems as $stockItem) {
+        if ($item['article_id'] == $stockItem['article_id']) {
+            if ($item['quantity'] > $stockItem['quantity']) {
+            // Supprimer les articles en trop dans le panier
+            $toRemove = $item['quantity'] - $stockItem['quantity'];
+            $deleteExtra = $db->prepare("DELETE FROM Cart WHERE user_id = ? AND article_id = ? LIMIT $toRemove");
+            $deleteExtra->execute([$userId, $item['article_id']]);
+            $item['quantity'] = $stockItem['quantity'];
+            }
+            break;
+        }
+    }
+}
+
+foreach ($stockItems as $stockItem) {
+    if ($stockItem['quantity'] <= 0) {
+        $deleteArticle = $db->prepare("DELETE FROM Article WHERE id = ?");
+        $deleteArticle->execute([$stockItem['article_id']]);
+    }
+}
 ?>
 
 <h1>Votre panier</h1>
