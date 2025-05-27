@@ -11,7 +11,7 @@ try {
 
 $userId = $_SESSION["id"];
 $productId = $_GET["id"];
-$query = $db->prepare("SELECT name, price, description, image_link, S.quantity FROM Article JOIN Stock as S ON Article.id = S.article_id WHERE Article.id = ?");
+$query = $db->prepare("SELECT name, price, description, image_link, S.quantity, publication_date, u.username FROM Article JOIN Stock as S ON Article.id = S.article_id JOIN User as u ON u.id = Article.author_id WHERE Article.id = ?");
 $query->execute([$productId]);
 $product = $query->fetch(PDO::FETCH_ASSOC);
 if (!$product) {
@@ -92,6 +92,8 @@ if (isset($_POST['add_to_cart'])) {
             <p>Quantité disponible : <?= $product['quantity'] ?></p>
             <p>Déjà dans le panier : <?= $alreadyInCart ?></p>
             <p>description : <?= $product['description'] ?></p>
+            <p>Vendeur : <?= $product['username'] ?></p>
+            <p>Date : <?= $product['publication_date'] ?></p>
             <form method="POST">
                 <input type="hidden" name="product_id" value="<?= $productId ?>">
                 <input type="range" name="quantity" min="1" max="<?= $product['quantity'] - $alreadyInCart ?>" value="1">
