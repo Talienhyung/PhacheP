@@ -1,7 +1,6 @@
 <?php
 
 include_once "header.php";
-session_start();
 try {
     $db = new PDO('mysql:host=localhost;dbname=phachepDB', 'root', '');
 } catch (PDOException $e) {
@@ -20,6 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if ($user && password_verify($password, $user['password'])) {
         $_SESSION["id"] = $user["id"];
+        $_SESSION["role"] = $user["role"];
 
         // Redirection royale
         header("Location: page.php?id=" . $user["id"]);

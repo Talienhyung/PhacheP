@@ -46,7 +46,6 @@ include 'header.php';
     </form>
 
     <?php
-    session_start();
     if (isset($_POST['register'])) {
         try {
             $db = new PDO('mysql:host=localhost;dbname=phachepDB', 'root', '');

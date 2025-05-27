@@ -55,6 +55,9 @@
                 <?php else: ?>
                     <a href="/phachep/logout.php">Déconnexion</a>
                 <?php endif; ?>
+                <?php if (isset($_SESSION["role"]) && $_SESSION["role"] === "admin"): ?>
+                    <a href="/phachep/admin/admin_users.php">Admin</a>
+                <?php endif; ?>
             </div>
         </nav>
     </header>
