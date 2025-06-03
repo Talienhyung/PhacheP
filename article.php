@@ -23,6 +23,21 @@ if ($isEdit) {
     }
 }
 
+// Supprimer un article
+if (isset($_GET['delete'])) {
+    // Delete from Stock first
+    $stmt = $db->prepare("DELETE FROM Stock WHERE article_id = ?");
+    $stmt->execute([$_GET['delete']]);
+    // Then delete from Cart
+    $stmt = $db->prepare("DELETE FROM Cart WHERE article_id = ?");
+    $stmt->execute([$_GET['delete']]);
+    // Finally delete from Article
+    $stmt = $db->prepare("DELETE FROM Article WHERE id = ?");
+    $stmt->execute([$_GET['delete']]);
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit;
+}
+
 if (isset($_POST['add'])) {
     $stmt = $db->prepare("INSERT INTO Article (name, description, price, publication_date, author_id, image_link)
                           VALUES (?, ?, ?, ?, ?, ?)");
@@ -125,6 +140,10 @@ if (isset($_POST['update'])) {
         button:hover {
             background: #1a5;
         }
+        button a {
+            color: black;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -162,6 +181,13 @@ if (isset($_POST['update'])) {
         <button type="submit" name="<?= $editArticle ? 'update' : 'add' ?>">
             <?= $editArticle ? 'Mettre à jour' : 'Ajouter' ?>
         </button>
+        <?php if ($isEdit): ?>
+            <button>
+                <a href="?delete=<?= $editArticle['id'] ?>"  onclick="return confirm('Supprimer cet article ?');">
+                Supprimer l'article
+                </a>
+            </button>
+        <?php endif; ?>
     </form>
 </main>
 </body>
