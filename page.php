@@ -28,6 +28,7 @@ $articles = $stmt->fetchAll();
 
 $purchased = [];
 $invoices = [];
+$favs = [];
 
 if ($isYourself) {
     $stmt = $db->prepare("
@@ -42,6 +43,16 @@ if ($isYourself) {
     $stmt = $db->prepare("SELECT * FROM Invoice WHERE user_id = ?");
     $stmt->execute([$userId]);
     $invoices = $stmt->fetchAll();
+
+    $stmt = $db->prepare("
+        SELECT F.article_id, A.name
+        FROM Favorite F
+        JOIN Article A ON F.article_id = A.id
+        WHERE F.user_id = ?
+    ");
+    $stmt->execute([$userId]);
+    $favs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 }
 ?>
 
@@ -94,6 +105,17 @@ if ($isYourself) {
         </section>
 
         <?php if ($isYourself): ?>
+            <section>
+                <h2>Mes Favoris</h2>
+                <ul>
+                    <?php if (empty($favs)): ?>
+                        <li>Aucun favori pour l'instant...</li>
+                    <?php else: ?>
+                        <?php foreach ($favs as $fav): ?>
+                            <li><a href="addcart.php?id=<?= htmlspecialchars($fav['article_id']) ?>" > <?= htmlspecialchars($fav['name']) ?> </a></li>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+            </section>
             <section>
                 <h2>Mes factures</h2>
                 <ul>

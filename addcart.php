@@ -1,7 +1,6 @@
 <?php
 
 include_once "header.php";
-require_once "auth.php";
 
 require_once 'db_config.php';
 try {
@@ -11,6 +10,7 @@ try {
 }
 
 $userId = $_SESSION["id"];
+$loggedIn = isset($userId) && $userId > 0;
 $productId = $_GET["id"];
 $query = $db->prepare("SELECT name, price, description, image_link, S.quantity, publication_date, u.username FROM Article JOIN Stock as S ON Article.id = S.article_id JOIN User as u ON u.id = Article.author_id WHERE Article.id = ?");
 $query->execute([$productId]);
@@ -20,10 +20,17 @@ if (!$product) {
     exit();
 }
 
-$queryCart = $db->prepare("SELECT COUNT(*) as count FROM Cart WHERE user_id = ? AND article_id = ?");
-$queryCart->execute([$userId, $productId]);
-$cartItem = $queryCart->fetch(PDO::FETCH_ASSOC);
-$alreadyInCart = $cartItem ? (int)$cartItem['count'] : 0;
+if (isset($userId)){
+    $queryCart = $db->prepare("SELECT COUNT(*) as count FROM Cart WHERE user_id = ? AND article_id = ?");
+    $queryCart->execute([$userId, $productId]);
+    $cartItem = $queryCart->fetch(PDO::FETCH_ASSOC);
+    $alreadyInCart = $cartItem ? (int)$cartItem['count'] : 0;
+
+    $queryFav = $db->prepare("SELECT * FROM Favorite WHERE user_id = ? AND article_id = ?");
+    $queryFav->execute([$userId, $productId]);
+    $favItem = $queryFav->fetch(PDO::FETCH_ASSOC);
+    $isFavorite = $favItem ? true : false;
+}
 
 if (isset($_POST['add_to_cart'])) {
     $quantity = (int)$_POST['quantity'];
@@ -33,6 +40,17 @@ if (isset($_POST['add_to_cart'])) {
     }
     header("Location: cart.php");
     exit();
+}
+
+if (isset($_POST['fav'])) {
+    if ($isFavorite) {
+        // Si déjà favori, on le supprime
+        $stmt = $db->prepare("DELETE FROM Favorite WHERE user_id = ? AND article_id = ?");
+        $stmt->execute([$userId, $productId]);
+    }else {
+        $stmt = $db->prepare("INSERT INTO Favorite (user_id, article_id) VALUES (?, ?)");
+        $stmt->execute([$userId, $productId]);
+    }
 }
 
 
@@ -95,11 +113,20 @@ if (isset($_POST['add_to_cart'])) {
             <p>description : <?= $product['description'] ?></p>
             <p>Vendeur : <?= $product['username'] ?></p>
             <p>Date : <?= $product['publication_date'] ?></p>
-            <form method="POST">
-                <input type="hidden" name="product_id" value="<?= $productId ?>">
-                <input type="range" name="quantity" min="1" max="<?= $product['quantity'] - $alreadyInCart ?>" value="1">
-                <button type="submit" name="add_to_cart">Ajouter au panier</button>
-            </form>
+            <?php if ($loggedIn) { ?>
+                <form method="POST">
+                    <input type="hidden" name="product_id" value="<?= $productId ?>">
+                    <input type="range" name="quantity" min="1" max="<?= $product['quantity'] - $alreadyInCart ?>" value="1">
+                    <button type="submit" name="add_to_cart">Ajouter au panier</button>
+                </form>
+                <form method="POST">
+                    <input type="hidden" name="product_id" value="<?= $productId ?>">
+                    <input type="hidden" name="user_id" value="<?= $userId ?>">
+                    <button type="submit" name="fav">
+                        <?= $isFavorite ? 'Supprimer des favoris' : 'Ajouter aux favoris' ?>
+                    </button>
+                </form>
+            <?php } ?>
         </div>
     </div>
 
