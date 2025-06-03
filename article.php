@@ -1,8 +1,14 @@
 <?php
-$db = new PDO('mysql:host=localhost;dbname=phachepDB;charset=utf8', 'root', '');
 
 include 'header.php';
 require_once 'auth.php';
+
+require_once 'db_config.php';
+try {
+    $db = new PDO("mysql:host=$DB_HOST;dbname=$DB_NAME", $DB_USER, $DB_PASS);
+} catch (PDOException $e) {
+    die("Connexion échouée, ô majesté : " . $e->getMessage());
+}
 
 $query = $db->prepare("SELECT * FROM User WHERE id = ?");
 $query->execute([$_SESSION['id']]);

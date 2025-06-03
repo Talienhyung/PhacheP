@@ -2,10 +2,11 @@
 include "../header.php";
 require_once "../auth.php";
 
+require_once '../db_config.php';
 try {
-    $db = new PDO('mysql:host=localhost;dbname=phachepDB', 'root', '');
+    $db = new PDO("mysql:host=$DB_HOST;dbname=$DB_NAME", $DB_USER, $DB_PASS);
 } catch (PDOException $e) {
-    die("Erreur de connexion : " . $e->getMessage());
+    die("Connexion échouée, ô majesté : " . $e->getMessage());
 }
 require_once "admin_auth.php";
 // Check for a valid user ID

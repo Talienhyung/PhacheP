@@ -46,9 +46,14 @@ include 'header.php';
     </form>
 
     <?php
+    require_once 'db_config.php';
+    try {
+        $db = new PDO("mysql:host=$DB_HOST;dbname=$DB_NAME", $DB_USER, $DB_PASS);
+    } catch (PDOException $e) {
+        die("Connexion échouée, ô majesté : " . $e->getMessage());
+    }
     if (isset($_POST['register'])) {
         try {
-            $db = new PDO('mysql:host=localhost;dbname=phachepDB', 'root', '');
             $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
             // Sécurisation des champs

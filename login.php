@@ -1,8 +1,9 @@
 <?php
 
 include_once "header.php";
+require_once 'db_config.php';
 try {
-    $db = new PDO('mysql:host=localhost;dbname=phachepDB', 'root', '');
+    $db = new PDO("mysql:host=$DB_HOST;dbname=$DB_NAME", $DB_USER, $DB_PASS);
 } catch (PDOException $e) {
     die("Connexion échouée, ô majesté : " . $e->getMessage());
 }
