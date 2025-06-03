@@ -98,7 +98,7 @@ if ($isYourself) {
                 <h2>Mes factures</h2>
                 <ul>
                     <?php foreach ($invoices as $inv): ?>
-                        <li><?= htmlspecialchars($inv['transaction_date']) ?> – <?= number_format($inv['amount'], 2) ?> €</li>
+                        <li><?= htmlspecialchars($inv['transaction_date']) ?> – <?= number_format($inv['amount'], 2) ?> € <a href="invoice.php?id=<?=$inv['id']?>">Detail</a></li>
                     <?php endforeach; ?>
                 </ul>
             </section>
