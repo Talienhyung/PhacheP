@@ -40,14 +40,7 @@ Lance les services **Apache** et **MySQL** depuis le panneau de contrôle XAMPP.
    * Importe le fichier `.sql`
    * Des données fictives sont dans les autres fichier sql
 
-4. Configure le fichier de connexion à la base de données `db_config.php`:
-
-   ```php
-    $DB_HOST = 'localhost';
-    $DB_NAME = 'nom_de_ta_bdd';
-    $DB_USER = 'root';
-    $DB_PASS = '';
-   ```
+4. Configure le fichier de connexion à la base de données `db_config.php`selon le modèle exemple:
 
 ### 4. Lancer l'application
 
@@ -57,6 +50,9 @@ Accède à ton projet via un navigateur à l’adresse suivante :
 http://localhost/phachep
 ```
 
+les identifiants admin sont 
+admin@admin.com
+admin
 
 ## ✍️ Auteur
 
