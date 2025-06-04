@@ -57,6 +57,10 @@ Accède à ton projet via un navigateur à l’adresse suivante :
 http://localhost/phachep
 ```
 
+Les identifiants admin sont :
+admin@admin.com
+admin
+
 
 ## ✍️ Auteur
 
