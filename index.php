@@ -7,6 +7,9 @@ try {
     die("Connexion échouée, ô majesté : " . $e->getMessage());
 }
 
+error_reporting(E_ERROR | E_PARSE); // Affiche uniquement les erreurs critiques
+ini_set('display_errors', 0);  
+
 // Supprimer un article
 if (isset($_GET['delete'])) {
     $stmt = $db->prepare("DELETE FROM Article WHERE id = ?");

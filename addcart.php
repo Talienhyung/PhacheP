@@ -9,6 +9,10 @@ try {
     die("Connexion échouée, ô majesté : " . $e->getMessage());
 }
 
+error_reporting(E_ERROR | E_PARSE); // Affiche uniquement les erreurs critiques
+ini_set('display_errors', 0);  
+
+
 $userId = $_SESSION["id"];
 $loggedIn = isset($userId) && $userId > 0;
 $productId = $_GET["id"];
