@@ -6,7 +6,7 @@ include 'header.php';
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Register - Omivahi</title>
+    <title>Register</title>
     <style>
         form {
             display: flex;

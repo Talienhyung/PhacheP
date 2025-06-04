@@ -2,8 +2,9 @@
 include 'header.php';
 require_once "auth.php";
 
+require_once 'db_config.php';
 try {
-    $db = new PDO('mysql:host=localhost;dbname=phachepDB', 'root', '');
+    $db = new PDO("mysql:host=$DB_HOST;dbname=$DB_NAME", $DB_USER, $DB_PASS);
 } catch (PDOException $e) {
     die("Connexion échouée, ô majesté : " . $e->getMessage());
 }
@@ -129,9 +130,8 @@ if (isset($_POST['getit'])) {
                 echo "<p class='message' style='color:red;'>Solde insuffisant pour passer la commande.</p>";
             } else {
                 // Insertion de la facture
-                $transaction_date = date('Y-m-d'); // ou 'Y-m-d H:i:s' selon ta colonne
-                $insertInvoice = $db->prepare("INSERT INTO Invoice (user_id, amount, transaction_date, billing_address, billing_city, billing_zipcode) VALUES (?, ?, ?, ?, ?, ?)");
-                $insertInvoice->execute([$userId, $total, $transaction_date, $billing_address, $billing_city, $billing_zipcode]);
+                $insertInvoice = $db->prepare("INSERT INTO Invoice (user_id, amount, billing_address, billing_city, billing_zipcode) VALUES (?, ?, ?, ?, ?)");
+                $insertInvoice->execute([$userId, $total, $billing_address, $billing_city, $billing_zipcode]);
 
                 $deleteOldStock = $db->prepare(
                     "UPDATE Stock S
@@ -156,11 +156,6 @@ if (isset($_POST['getit'])) {
                 
 
                 echo "<p class='message' style='color:green;'>Commande passée avec succès !</p>";
-                echo "<script>
-                    setTimeout(function() {
-                        window.location.href = 'cart.php';
-                    }, 3000); // 3000 millisecondes = 3 secondes
-                </script>";
 
             }
         }
