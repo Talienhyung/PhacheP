@@ -102,6 +102,7 @@ if ($search !== '') {
         <button type="submit">Rechercher</button>
     </form>
 
+    <p>Cliquez sur les en-têtes pour trier les articles.</p>
     <table>
         <tr>
             <th>Image</th>
